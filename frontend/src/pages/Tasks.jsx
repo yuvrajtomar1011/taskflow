@@ -1,3 +1,4 @@
+import { useAuth } from "../context/AuthContext";
 import { useEffect, useState } from "react";
 import {
   fetchTasks,
@@ -6,7 +7,10 @@ import {
   deleteTask,
 } from "../services/taskService";
 
+<button onClick={logout}>Logout</button>
+
 function Tasks() {
+  const { logout } = useAuth();
   const [tasks, setTasks] = useState([]);
   const [title, setTitle] = useState("");
 
