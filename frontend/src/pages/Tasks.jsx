@@ -6,6 +6,7 @@ import {
   deleteTask,
 } from "../services/taskService";
 import { useAuth } from "../context/AuthContext";
+import "../styles/tasks.css";
 
 function Tasks() {
   const [tasks, setTasks] = useState([]);
@@ -46,68 +47,46 @@ function Tasks() {
   };
 
   return (
-    <div style={{ maxWidth: "600px", margin: "40px auto" }}>
-      {/* Header */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
-        <h2>TaskFlow</h2>
+    <main className="container">
+      <header className="header">
+        <h1>TaskFlow</h1>
         <button onClick={logout}>Logout</button>
-      </div>
+      </header>
 
-      {/* Create Task */}
-      <form
-        onSubmit={handleCreate}
-        style={{ marginTop: "20px", display: "flex" }}
-      >
+      <form className="task-form" onSubmit={handleCreate}>
         <input
           type="text"
-          placeholder="New task title"
+          placeholder="Enter new task"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          style={{ flex: 1, marginRight: "10px" }}
         />
         <button type="submit">Add</button>
       </form>
 
-      {/* Task List */}
-      <ul style={{ marginTop: "20px", padding: 0 }}>
+      <ul className="task-list">
         {tasks.map((task) => (
-          <li
-            key={task.id}
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              marginBottom: "10px",
-              listStyle: "none",
-            }}
-          >
+          <li className="task-item" key={task.id}>
             <span
-              style={{
-                cursor: "pointer",
-                textDecoration: task.is_completed
-                  ? "line-through"
-                  : "none",
-              }}
+              className={`task-title ${
+                task.is_completed ? "completed" : ""
+              }`}
               onClick={() => toggleComplete(task)}
             >
               {task.title}
             </span>
-
-            <button onClick={() => handleDelete(task.id)}>
+            <button
+              className="delete-btn"
+              onClick={() => handleDelete(task.id)}
+            >
               ❌
             </button>
           </li>
         ))}
       </ul>
-    </div>
+    </main>
   );
 }
 
 export default Tasks;
+
 
