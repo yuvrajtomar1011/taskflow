@@ -1,4 +1,3 @@
-import { useAuth } from "../context/AuthContext";
 import { useEffect, useState } from "react";
 import {
   fetchTasks,
@@ -6,13 +5,12 @@ import {
   updateTask,
   deleteTask,
 } from "../services/taskService";
-
-<button onClick={logout}>Logout</button>
+import { useAuth } from "../context/AuthContext";
 
 function Tasks() {
-  const { logout } = useAuth();
   const [tasks, setTasks] = useState([]);
   const [title, setTitle] = useState("");
+  const { logout } = useAuth();
 
   useEffect(() => {
     loadTasks();
@@ -25,7 +23,7 @@ function Tasks() {
 
   const handleCreate = async (e) => {
     e.preventDefault();
-    if (!title) return;
+    if (!title.trim()) return;
 
     const newTask = await createTask({ title });
     setTasks([newTask, ...tasks]);
@@ -48,32 +46,59 @@ function Tasks() {
   };
 
   return (
-    <div>
-      <h2>My Tasks</h2>
+    <div style={{ maxWidth: "600px", margin: "40px auto" }}>
+      {/* Header */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <h2>TaskFlow</h2>
+        <button onClick={logout}>Logout</button>
+      </div>
 
-      <form onSubmit={handleCreate}>
+      {/* Create Task */}
+      <form
+        onSubmit={handleCreate}
+        style={{ marginTop: "20px", display: "flex" }}
+      >
         <input
+          type="text"
           placeholder="New task title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
+          style={{ flex: 1, marginRight: "10px" }}
         />
-        <button>Add</button>
+        <button type="submit">Add</button>
       </form>
 
-      <ul>
+      {/* Task List */}
+      <ul style={{ marginTop: "20px", padding: 0 }}>
         {tasks.map((task) => (
-          <li key={task.id}>
+          <li
+            key={task.id}
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: "10px",
+              listStyle: "none",
+            }}
+          >
             <span
               style={{
+                cursor: "pointer",
                 textDecoration: task.is_completed
                   ? "line-through"
                   : "none",
-                cursor: "pointer",
               }}
               onClick={() => toggleComplete(task)}
             >
               {task.title}
             </span>
+
             <button onClick={() => handleDelete(task.id)}>
               ❌
             </button>
@@ -85,3 +110,4 @@ function Tasks() {
 }
 
 export default Tasks;
+
