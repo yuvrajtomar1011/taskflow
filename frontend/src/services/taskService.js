@@ -1,20 +1,24 @@
 import api from "./api";
 
-export const fetchTasks = async () => {
-  const res = await api.get("/tasks/");
-  return res.data.results || res.data;
+// Get all tasks
+export const getTasks = async () => {
+  const response = await api.get("/tasks/");
+  return response.data.results || response.data;
 };
 
-export const createTask = async (task) => {
-  const res = await api.post("/tasks/", task);
-  return res.data;
+// Create a task
+export const createTask = async (taskData) => {
+  const response = await api.post("/tasks/", taskData);
+  return response.data;
 };
 
+// Update a task
 export const updateTask = async (id, data) => {
-  const res = await api.patch(`/tasks/${id}/`, data);
-  return res.data;
+  const response = await api.patch(`/tasks/${id}/`, data);
+  return response.data;
 };
 
+// Delete a task
 export const deleteTask = async (id) => {
   await api.delete(`/tasks/${id}/`);
 };

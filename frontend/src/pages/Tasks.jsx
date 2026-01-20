@@ -1,92 +1,102 @@
 import { useEffect, useState } from "react";
-import {
-  fetchTasks,
-  createTask,
-  updateTask,
-  deleteTask,
-} from "../services/taskService";
-import { useAuth } from "../context/AuthContext";
+import { getTasks, createTask } from "../services/taskService";
 import "../styles/tasks.css";
 
 function Tasks() {
   const [tasks, setTasks] = useState([]);
   const [title, setTitle] = useState("");
-  const { logout } = useAuth();
+  const [dueDate, setDueDate] = useState("");
+  const [priority, setPriority] = useState("medium");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadTasks();
   }, []);
 
   const loadTasks = async () => {
-    const data = await fetchTasks();
-    setTasks(data);
+    try {
+      const data = await getTasks();
+      setTasks(data);
+    } catch (error) {
+      console.error("Failed to load tasks", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleCreate = async (e) => {
+  const handleAddTask = async (e) => {
     e.preventDefault();
+
     if (!title.trim()) return;
 
-    const newTask = await createTask({ title });
-    setTasks([newTask, ...tasks]);
-    setTitle("");
+    try {
+      const newTask = {
+        title: title,
+        due_date: dueDate || null,
+        priority: priority,
+      };
+
+      const createdTask = await createTask(newTask);
+      setTasks([createdTask, ...tasks]);
+
+      setTitle("");
+      setDueDate("");
+      setPriority("medium");
+    } catch (error) {
+      console.error("Failed to create task", error);
+    }
   };
 
-  const toggleComplete = async (task) => {
-    const updated = await updateTask(task.id, {
-      is_completed: !task.is_completed,
-    });
-
-    setTasks(
-      tasks.map((t) => (t.id === task.id ? updated : t))
-    );
-  };
-
-  const handleDelete = async (id) => {
-    await deleteTask(id);
-    setTasks(tasks.filter((t) => t.id !== id));
-  };
+  if (loading) {
+    return <p style={{ textAlign: "center" }}>Loading tasks...</p>;
+  }
 
   return (
     <main className="container">
-      <header className="header">
-        <h1>TaskFlow</h1>
-        <button onClick={logout}>Logout</button>
-      </header>
+      <h2>My Tasks</h2>
 
-      <form className="task-form" onSubmit={handleCreate}>
+      <form className="task-form" onSubmit={handleAddTask}>
         <input
           type="text"
-          placeholder="Enter new task"
+          placeholder="Task title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
         />
-        <button type="submit">Add</button>
+
+        <input
+          type="date"
+          value={dueDate}
+          onChange={(e) => setDueDate(e.target.value)}
+        />
+
+        <select
+          value={priority}
+          onChange={(e) => setPriority(e.target.value)}
+        >
+          <option value="low">Low</option>
+          <option value="medium">Medium</option>
+          <option value="high">High</option>
+        </select>
+
+        <button type="submit">Add Task</button>
       </form>
 
-      <ul className="task-list">
-        {tasks.map((task) => (
-          <li className="task-item" key={task.id}>
-            <span
-              className={`task-title ${
-                task.is_completed ? "completed" : ""
-              }`}
-              onClick={() => toggleComplete(task)}
-            >
-              {task.title}
-            </span>
-            <button
-              className="delete-btn"
-              onClick={() => handleDelete(task.id)}
-            >
-              ❌
-            </button>
-          </li>
-        ))}
-      </ul>
+      {tasks.length === 0 ? (
+        <p>No tasks yet.</p>
+      ) : (
+        tasks.map((task) => (
+          <div key={task.id} className="task-item">
+            <h3>{task.title}</h3>
+
+            <div className="task-meta">
+              {task.due_date && <small>Due: {task.due_date}</small>}
+              <small>Priority: {task.priority}</small>
+            </div>
+          </div>
+        ))
+      )}
     </main>
   );
 }
 
 export default Tasks;
-
-
