@@ -8,6 +8,8 @@ class TaskSerializer(serializers.ModelSerializer):
             "id",
             "title",
             "description",
+            "due_date",
+            "priority",
             "is_completed",
             "created_at",
         ]
